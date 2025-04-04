@@ -13,19 +13,23 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Album
 import androidx.compose.material.icons.filled.Brush
+import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.DashboardCustomize
+import androidx.compose.material.icons.filled.MoreTime
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -53,6 +57,7 @@ import androidx.core.content.ContextCompat
 import com.raaveinm.myapplication.service.Companion.ACTION_PAUSE
 import com.raaveinm.myapplication.service.Companion.ACTION_PLAY
 import com.raaveinm.myapplication.service.PlayerService
+import com.raaveinm.myapplication.ui.layout.TimePickerScreen
 import com.raaveinm.myapplication.ui.theme.MyApplicationTheme
 
 class MainActivity : ComponentActivity() {
@@ -88,10 +93,11 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun MainScreen() {
-    var pressed by remember { mutableIntStateOf(0) }
+    var pressed by remember { mutableIntStateOf(3) }
 
     Scaffold(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize()
+            .background(rainbowBackground()),
         bottomBar = {
             NavigationBar {
                 NavigationBarItem(
@@ -131,7 +137,9 @@ fun MainScreen() {
                     modifier = Modifier.padding(innerPadding)
                 )
             }
-            1 -> {}
+            1 -> {
+                TimePickerScreen()
+            }
             2 -> {
                 ButtonRow(
                     modifier = Modifier.padding(innerPadding)
@@ -150,6 +158,7 @@ fun Greeting(
     Column (modifier = modifier
         .fillMaxSize()
         .padding(16.dp),
+        //.background(Color.DarkGray),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -177,6 +186,73 @@ fun Greeting(
     ) {/*row elements*/}
 }
 
+@Composable
+fun Settings(
+    modifier: Modifier = Modifier
+){
+    Row(
+        modifier = modifier.fillMaxSize(),
+        verticalAlignment = Alignment.Bottom,
+        horizontalArrangement = Arrangement.SpaceEvenly,
+    ) {
+        Button(
+            modifier = modifier
+                .shadow(
+                    10.dp, CircleShape, true,
+                    Color.Yellow, Color.Cyan
+                ),
+            onClick = {  }
+        ) {
+            Image(
+                imageVector = Icons.Filled.MoreTime,
+                contentDescription = "timePicker",
+                modifier = modifier.clip(CircleShape)
+            )
+        }
+        Button(
+            modifier = modifier
+                .shadow(
+                    10.dp, CircleShape, true,
+                    Color.Yellow, Color.Cyan
+                ),
+            onClick = {  }
+        ) {
+            Image(
+                imageVector = Icons.Filled.CalendarMonth,
+                contentDescription = "datePicker",
+                modifier = modifier.clip(CircleShape)
+            )
+        }
+        Button(
+            modifier = modifier
+                .shadow(
+                    10.dp, CircleShape, true,
+                    Color.Yellow, Color.Cyan
+                ),
+            onClick = {  }
+        ) {
+            Image(
+                imageVector = Icons.Filled.Warning,
+                contentDescription = "Alert",
+                modifier = modifier.clip(CircleShape)
+            )
+        }
+        Button(
+            modifier = modifier
+                .shadow(
+                    10.dp, CircleShape, true,
+                    Color.Yellow, Color.Cyan
+                ),
+            onClick = {  }
+        ) {
+            Image(
+                imageVector = Icons.Filled.DashboardCustomize,
+                contentDescription = "Custom",
+                modifier = modifier.clip(CircleShape)
+            )
+        }
+    }
+}
 
 @Composable
 fun ButtonRow(
@@ -186,7 +262,7 @@ fun ButtonRow(
     val context = LocalContext.current
 
     Row(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier,
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -241,6 +317,12 @@ fun ButtonRowPreview() {
 
 @Preview
 @Composable
+fun SettingsPreview() {
+    Settings()
+}
+
+@Preview
+@Composable
 fun Main() {
     MainScreen()
 }
@@ -257,18 +339,20 @@ fun GreetingPreview() {
 
 
 @Composable
-fun rainbowBackground()  {//return brush
+fun rainbowBackground(): Brush {
     val rainbowColorsBrush = remember {
         Brush.horizontalGradient(
-            listOf(
+            colors = listOf(
+                Color(0x00000000),
                 Color(0xFFf90101),
                 Color(0xFFf9a101),
                 Color(0xFFf9f903),
                 Color(0xFF017d01),
                 Color(0xFF1314e0),
                 Color(0xFF7e027e),
-                //Color(0xFFFF00FF)
-            ))
+                // Color(0xFFFF00FF)
+            )
+        )
     }
 
     val infiniteTransition = rememberInfiniteTransition(label = "")
@@ -281,5 +365,20 @@ fun rainbowBackground()  {//return brush
         ), label = ""
     )
 
-    //return rainbowColorsBrush.(start = offset * 1000f)
+    val rainbowBrush = Brush.horizontalGradient(
+        colors = listOf(
+            Color(0x00000000),
+            Color(0xFFf90101),
+            Color(0xFFf9a101),
+            Color(0xFFf9f903),
+            Color(0xFF017d01),
+            Color(0xFF1314e0),
+            Color(0xFF7e027e),
+            // Color(0xFFFF00FF)
+        ),
+        startX = offset * 2000f,
+        endX = offset * 0f
+    )
+
+    return rainbowBrush
 }
