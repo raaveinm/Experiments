@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.paddingFromBaseline
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
@@ -92,12 +93,13 @@ class MainActivity : ComponentActivity() {
  */
 
 @Composable
-fun MainScreen() {
+fun MainScreen(
+    modifier: Modifier = Modifier
+) {
     var pressed by remember { mutableIntStateOf(3) }
 
     Scaffold(
-        modifier = Modifier.fillMaxSize()
-            .background(rainbowBackground()),
+        modifier = Modifier.fillMaxSize(),
         bottomBar = {
             NavigationBar {
                 NavigationBarItem(
@@ -138,7 +140,9 @@ fun MainScreen() {
                 )
             }
             1 -> {
-                TimePickerScreen()
+                TimePickerScreen(
+                    modifier = Modifier.padding(innerPadding)
+                )
             }
             2 -> {
                 ButtonRow(
@@ -340,20 +344,6 @@ fun GreetingPreview() {
 
 @Composable
 fun rainbowBackground(): Brush {
-    val rainbowColorsBrush = remember {
-        Brush.horizontalGradient(
-            colors = listOf(
-                Color(0x00000000),
-                Color(0xFFf90101),
-                Color(0xFFf9a101),
-                Color(0xFFf9f903),
-                Color(0xFF017d01),
-                Color(0xFF1314e0),
-                Color(0xFF7e027e),
-                // Color(0xFFFF00FF)
-            )
-        )
-    }
 
     val infiniteTransition = rememberInfiniteTransition(label = "")
     val offset by infiniteTransition.animateFloat(

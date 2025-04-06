@@ -23,7 +23,7 @@ import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TimePickerScreen() {
+fun TimePickerScreen(modifier: Modifier = Modifier) {
     // State variables to hold selected values and comparison results
     var selectedTime by remember { mutableStateOf<String?>(null) }
     var isTimeCorrect by remember { mutableStateOf<Boolean?>(null) }
@@ -51,143 +51,129 @@ fun TimePickerScreen() {
     val launchDatePicker = { showDatePickerDialog = true }
 
     // --- UI Structure ---
-    Scaffold(
-        modifier = Modifier.windowInsetsPadding(WindowInsets.systemBars),
-        snackbarHost = { SnackbarHost(snackbarHostState) },
-        content = { paddingValues ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-                    .padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+    Column(){
+        Spacer(modifier = Modifier.height(52.dp))
+        TimeDisplay(time = selectedTime, isCorrect = isTimeCorrect)
+
+        Spacer(modifier = Modifier.height(32.dp))
+        DateDisplay(date = selectedDate, isCorrect = isDateCorrect)
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        Settings(
+            modifier = Modifier.padding(bottom = 150.dp).fillMaxWidth(),
+            onTimeClick = launchTimePicker,
+            onDateClick = launchDatePicker,
+            onAlertClick = { showAlertDialog = true },
+            onCustomClick = { showCustomDialog = true }
+        )
+    }
+
+    // --- M3 Time Picker Dialog ---
+    if (showTimePickerDialog) {
+        TimePickerDialog(
+            state = timePickerState,
+            onDismissRequest = { showTimePickerDialog = false },
+            onConfirm = {
+                val cal = Calendar.getInstance()
+                cal.set(Calendar.HOUR_OF_DAY, timePickerState.hour)
+                cal.set(Calendar.MINUTE, timePickerState.minute)
+                cal.isLenient = false
+                cal.set(Calendar.SECOND, 0)
+                cal.set(Calendar.MILLISECOND, 0)
+
+                val timeFormat = SimpleDateFormat("H:mm", Locale.getDefault())
+                val formattedTime = timeFormat.format(cal.time)
+                selectedTime = formattedTime
+
+                // Perform comparison
+                val actualTimeFormatted = timeFormat.format(Calendar.getInstance().time)
+                isTimeCorrect = (actualTimeFormatted == formattedTime)
+                showTimePickerDialog = false
+                        },
+            onDismiss = {
+                showTimePickerDialog = false
+            }
+        )
+    }
+
+
+    // --- M3 Date Picker Dialog ---
+    if (showDatePickerDialog) {
+        DatePickerDialog(
+            state = datePickerState,
+            onDismissRequest = { showDatePickerDialog = false },
+            onConfirm = {
+                val selectedMillis = datePickerState.selectedDateMillis
+                if (selectedMillis != null) {
+                    val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
+                    calendar.timeInMillis = selectedMillis
+                    val dateFormat = SimpleDateFormat("M/d/yyyy", Locale.getDefault())
+                    val formattedDate = dateFormat.format(calendar.time)
+                    selectedDate = formattedDate
+
+                    val todayCalendar = Calendar.getInstance()
+                    val actualDateFormatted = dateFormat.format(todayCalendar.time)
+                    isDateCorrect = (actualDateFormatted == formattedDate)
+
+                } else {
+                    selectedDate = null
+                    isDateCorrect = null
+                }
+                showDatePickerDialog = false
+                        },
+            onDismiss = {
+                showDatePickerDialog = false
+            }
+        )
+    }
+
+    // --- Other Dialogs (unchanged) ---
+    if (showAlertDialog) {
+        AlertDialog(
+            onDismissRequest = { showAlertDialog = false },
+            confirmButton = {
+                Button(onClick = { showAlertDialog = false }) { Text("Understood") } },
+            icon = { Icon(Icons.Filled.CheckCircle, contentDescription = null) },
+            title = { Text("Alert Sample") },
+            text = {
+                Text("You told that it's ${selectedTime ?: "no time selected"}. " +
+                        "And you think that today is ${selectedDate ?: "no date selected"}")
+            }
+        )
+    }
+
+    if (showCustomDialog) {
+        Dialog(onDismissRequest = { showCustomDialog = false }) {
+            Surface(
+                shape = MaterialTheme.shapes.medium,
+                color = MaterialTheme.colorScheme.surface,
+                modifier = Modifier.padding(16.dp)
             ) {
-                Spacer(modifier = Modifier.height(32.dp))
-                TimeDisplay(time = selectedTime, isCorrect = isTimeCorrect)
-
-                Spacer(modifier = Modifier.height(32.dp))
-                DateDisplay(date = selectedDate, isCorrect = isDateCorrect)
-
-                Spacer(modifier = Modifier.weight(1f))
-
-                Settings(
-                    modifier = Modifier.fillMaxWidth(),
-                    onTimeClick = launchTimePicker,
-                    onDateClick = launchDatePicker,
-                    onAlertClick = { showAlertDialog = true },
-                    onCustomClick = { showCustomDialog = true }
-                )
-            }
-
-            // --- M3 Time Picker Dialog ---
-            if (showTimePickerDialog) {
-                TimePickerDialog(
-                    state = timePickerState,
-                    onDismissRequest = { showTimePickerDialog = false },
-                    onConfirm = {
-                        val cal = Calendar.getInstance()
-                        cal.set(Calendar.HOUR_OF_DAY, timePickerState.hour)
-                        cal.set(Calendar.MINUTE, timePickerState.minute)
-                        cal.isLenient = false
-                        cal.set(Calendar.SECOND, 0)
-                        cal.set(Calendar.MILLISECOND, 0)
-
-                        val timeFormat = SimpleDateFormat("H:mm", Locale.getDefault())
-                        val formattedTime = timeFormat.format(cal.time)
-                        selectedTime = formattedTime
-
-                        // Perform comparison
-                        val actualTimeFormatted = timeFormat.format(Calendar.getInstance().time)
-                        isTimeCorrect = (actualTimeFormatted == formattedTime)
-
-                        showTimePickerDialog = false
-                    },
-                    onDismiss = {
-                        showTimePickerDialog = false
-                    }
-                )
-            }
-
-
-            // --- M3 Date Picker Dialog ---
-            if (showDatePickerDialog) {
-                DatePickerDialog(
-                    state = datePickerState,
-                    onDismissRequest = { showDatePickerDialog = false },
-                    onConfirm = {
-                        val selectedMillis = datePickerState.selectedDateMillis
-                        if (selectedMillis != null) {
-                            val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
-                            calendar.timeInMillis = selectedMillis
-                            val dateFormat = SimpleDateFormat("M/d/yyyy", Locale.getDefault())
-                            val formattedDate = dateFormat.format(calendar.time)
-                            selectedDate = formattedDate
-
-                            val todayCalendar = Calendar.getInstance()
-                            val actualDateFormatted = dateFormat.format(todayCalendar.time)
-                            isDateCorrect = (actualDateFormatted == formattedDate)
-
-                        } else {
-                            selectedDate = null
-                            isDateCorrect = null
-                        }
-                        showDatePickerDialog = false
-                    },
-                    onDismiss = {
-                        showDatePickerDialog = false
-                    }
-                )
-            }
-
-            // --- Other Dialogs (unchanged) ---
-            if (showAlertDialog) {
-                AlertDialog(
-                    onDismissRequest = { showAlertDialog = false },
-                    confirmButton = {
-                        Button(onClick = { showAlertDialog = false }) { Text("Understood") }
-                    },
-                    icon = { Icon(Icons.Filled.CheckCircle, contentDescription = null) },
-                    title = { Text("Alert Sample") },
-                    text = {
-                        Text("You told that it's ${selectedTime ?: "no time selected"}. " +
-                                "And you think that today is ${selectedDate ?: "no date selected"}")
-                    }
-                )
-            }
-
-            if (showCustomDialog) {
-                Dialog(onDismissRequest = { showCustomDialog = false }) {
-                    Surface(
-                        shape = MaterialTheme.shapes.medium,
-                        color = MaterialTheme.colorScheme.surface,
-                        modifier = Modifier.padding(16.dp)
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(24.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Text("Custom Dialog Title", style = MaterialTheme
-                                .typography.headlineSmall)
-                            Spacer(modifier = Modifier.height(16.dp))
-                            Text("This is custom dialog content.")
-                            Spacer(modifier = Modifier.height(24.dp))
-                            Button(
-                                onClick = {
-                                    showCustomDialog = false
-                                    coroutineScope.launch {
-                                        snackbarHostState.showSnackbar(
-                                            "Custom dialog button clicked!")
-                                    }
-                                }
-                            ) {
-                                Text("OK")
+                Column(
+                    modifier = Modifier.padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text("Custom Dialog Title", style = MaterialTheme
+                        .typography.headlineSmall)
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text("This is custom dialog content.")
+                    Spacer(modifier = Modifier.height(24.dp))
+                    Button(
+                        onClick = {
+                            showCustomDialog = false
+                            coroutineScope.launch {
+                                snackbarHostState.showSnackbar(
+                                    "Custom dialog button clicked!")
                             }
                         }
+                    ) {
+                        Text("OK")
                     }
                 }
             }
         }
-    )
+    }
 }
 
 // ------------- UI Components (Unchanged except imports if any) -------------
