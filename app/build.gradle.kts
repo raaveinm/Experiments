@@ -61,4 +61,10 @@ dependencies {
     implementation (libs.media3.exoplayer.dash)
     implementation (libs.media3.ui)
     implementation (libs.androidx.material.icons.extended)
+
+    implementation(libs.retrofit)
+    implementation(libs.converter.moshi)
+    implementation(libs.moshi.kotlin)
+    implementation(libs.coil.compose.v260)
+    implementation(libs.logging.interceptor)
 }

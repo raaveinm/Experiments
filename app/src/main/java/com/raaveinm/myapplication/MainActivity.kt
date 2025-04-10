@@ -27,6 +27,7 @@ import androidx.compose.material.icons.filled.Album
 import androidx.compose.material.icons.filled.Brush
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.DashboardCustomize
+import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.MoreTime
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
@@ -58,6 +59,7 @@ import androidx.core.content.ContextCompat
 import com.raaveinm.myapplication.service.Companion.ACTION_PAUSE
 import com.raaveinm.myapplication.service.Companion.ACTION_PLAY
 import com.raaveinm.myapplication.service.PlayerService
+import com.raaveinm.myapplication.ui.layout.CatScreen
 import com.raaveinm.myapplication.ui.layout.TimePickerScreen
 import com.raaveinm.myapplication.ui.theme.MyApplicationTheme
 
@@ -103,7 +105,7 @@ fun MainScreen(
         bottomBar = {
             NavigationBar {
                 NavigationBarItem(
-                    selected = true,
+                    selected = pressed == 0,
                     onClick = { pressed = 0 },
                     icon = { Icon(
                         (Icons.Filled.AccountCircle),
@@ -112,7 +114,7 @@ fun MainScreen(
                     label = { Text(text = stringResource(R.string.home)) }
                 )
                 NavigationBarItem(
-                    selected = false,
+                    selected = pressed == 2,
                     onClick = { pressed = 2 },
                     icon = { Icon(
                         (Icons.Filled.Album),
@@ -121,13 +123,24 @@ fun MainScreen(
                     label = { Text(text = stringResource(R.string.player)) }
                 )
                 NavigationBarItem(
-                    selected = false,
+                    selected = pressed == 1,
                     onClick = { pressed = 1 },
                     icon = { Icon(
                         (Icons.Filled.Brush),
                         contentDescription = stringResource(R.string.settings)
                     )},
                     label = { Text(text = stringResource(R.string.settings)) }
+                )
+                NavigationBarItem(
+                    selected = pressed == 3,
+                    onClick = { pressed = 3 },
+                    icon = {
+                        Icon(
+                            (Icons.Filled.Image),
+                            contentDescription = stringResource(R.string.cats)
+                        )
+                    },
+                    label = { Text(text = stringResource(R.string.cats)) }
                 )
             }
         }
@@ -146,6 +159,11 @@ fun MainScreen(
             }
             2 -> {
                 ButtonRow(
+                    modifier = Modifier.padding(innerPadding)
+                )
+            }
+            3 -> {
+                CatScreen(
                     modifier = Modifier.padding(innerPadding)
                 )
             }
