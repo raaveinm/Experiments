@@ -1,7 +1,8 @@
 <resources>
-    <string name="app_name">My Application</string>
+    <string name="app_name">TestFlight</string>
     <string name="home">HOME</string>
     <string name="player">PLAYER</string>
     <string name="settings">SETTINGS</string>
     <string name="cats">cats</string>
+    <string name="datalayer">data</string>
 </resources>

@@ -1,11 +1,18 @@
 package com.raaveinm.myapplication
 
+
+import android.Manifest.permission.READ_EXTERNAL_STORAGE
+import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -13,13 +20,11 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.paddingFromBaseline
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
@@ -27,10 +32,12 @@ import androidx.compose.material.icons.filled.Album
 import androidx.compose.material.icons.filled.Brush
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.DashboardCustomize
+import androidx.compose.material.icons.filled.DataSaverOff
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.MoreTime
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.SwapVerticalCircle
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
@@ -43,6 +50,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -60,14 +68,27 @@ import com.raaveinm.myapplication.service.Companion.ACTION_PAUSE
 import com.raaveinm.myapplication.service.Companion.ACTION_PLAY
 import com.raaveinm.myapplication.service.PlayerService
 import com.raaveinm.myapplication.ui.layout.CatScreen
+import com.raaveinm.myapplication.ui.layout.DataLayerLayout
 import com.raaveinm.myapplication.ui.layout.TimePickerScreen
 import com.raaveinm.myapplication.ui.theme.MyApplicationTheme
 
 class MainActivity : ComponentActivity() {
+
+    val requestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()){}
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
+            if (ContextCompat.checkSelfPermission(this, READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
+                requestPermissionLauncher.launch(READ_EXTERNAL_STORAGE)
+            }
+            if (ContextCompat.checkSelfPermission(this, WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
+                requestPermissionLauncher.launch(WRITE_EXTERNAL_STORAGE)
+            }
+            if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.MANAGE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
+                requestPermissionLauncher.launch(android.Manifest.permission.MANAGE_EXTERNAL_STORAGE)
+            }
             MyApplicationTheme {
                 MainScreen()
             }
@@ -98,78 +119,80 @@ class MainActivity : ComponentActivity() {
 fun MainScreen(
     modifier: Modifier = Modifier
 ) {
-    var pressed by remember { mutableIntStateOf(3) }
+    var localPressed by rememberSaveable { mutableIntStateOf(0) }
+    var swapped by rememberSaveable { mutableStateOf(false) }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         bottomBar = {
             NavigationBar {
                 NavigationBarItem(
-                    selected = pressed == 0,
-                    onClick = { pressed = 0 },
-                    icon = { Icon(
-                        (Icons.Filled.AccountCircle),
-                        contentDescription = stringResource(R.string.home)
-                    )},
-                    label = { Text(text = stringResource(R.string.home)) }
+                    selected = false,
+                    onClick = { swapped = !swapped },
+                    icon = { Icon(Icons.Filled.SwapVerticalCircle, contentDescription = "swap") }
                 )
-                NavigationBarItem(
-                    selected = pressed == 2,
-                    onClick = { pressed = 2 },
-                    icon = { Icon(
-                        (Icons.Filled.Album),
-                        contentDescription = stringResource(R.string.player)
-                    )},
-                    label = { Text(text = stringResource(R.string.player)) }
-                )
-                NavigationBarItem(
-                    selected = pressed == 1,
-                    onClick = { pressed = 1 },
-                    icon = { Icon(
-                        (Icons.Filled.Brush),
-                        contentDescription = stringResource(R.string.settings)
-                    )},
-                    label = { Text(text = stringResource(R.string.settings)) }
-                )
-                NavigationBarItem(
-                    selected = pressed == 3,
-                    onClick = { pressed = 3 },
-                    icon = {
-                        Icon(
-                            (Icons.Filled.Image),
-                            contentDescription = stringResource(R.string.cats)
-                        )
-                    },
-                    label = { Text(text = stringResource(R.string.cats)) }
-                )
+                if (swapped) {
+                    NavigationBarItem(
+                        selected = localPressed ==4,
+                        onClick = { localPressed = 4 },
+                        icon = { Icon(
+                            (Icons.Filled.DataSaverOff),
+                            contentDescription = stringResource(R.string.datalayer)
+                        )}
+                    )
+                } else {
+                    NavigationBarItem(
+                        selected = localPressed == 0,
+                        onClick = { localPressed = 0 },
+                        icon = { Icon(
+                            (Icons.Filled.AccountCircle),
+                            contentDescription = stringResource(R.string.home)
+                        )},
+                        label = { Text(text = stringResource(R.string.home)) }
+                    )
+                    NavigationBarItem(
+                        selected = localPressed == 2,
+                        onClick = { localPressed = 2 },
+                        icon = { Icon(
+                            (Icons.Filled.Album),
+                            contentDescription = stringResource(R.string.player)
+                        )},
+                        label = { Text(text = stringResource(R.string.player)) }
+                    )
+                    NavigationBarItem(
+                        selected = localPressed == 1,
+                        onClick = { localPressed = 1 },
+                        icon = { Icon(
+                            (Icons.Filled.Brush),
+                            contentDescription = stringResource(R.string.settings)
+                        )},
+                        label = { Text(text = stringResource(R.string.settings)) }
+                    )
+                    NavigationBarItem(
+                        selected = localPressed == 3,
+                        onClick = { localPressed = 3 },
+                        icon = {
+                            Icon(
+                                (Icons.Filled.Image),
+                                contentDescription = stringResource(R.string.cats)
+                            )
+                        },
+                        label = { Text(text = stringResource(R.string.cats)) }
+                    )
+                }
             }
         }
     ) { innerPadding ->
-        when (pressed) {
-            0 -> {
-                Greeting(
-                    name = "Android",
-                    modifier = Modifier.padding(innerPadding)
-                )
-            }
-            1 -> {
-                TimePickerScreen(
-                    modifier = Modifier.padding(innerPadding)
-                )
-            }
-            2 -> {
-                ButtonRow(
-                    modifier = Modifier.padding(innerPadding)
-                )
-            }
-            3 -> {
-                CatScreen(
-                    modifier = Modifier.padding(innerPadding)
-                )
-            }
+        when (localPressed) {
+            0 -> { Greeting(name = "Android", modifier = Modifier.padding(innerPadding))}
+            1 -> { TimePickerScreen(modifier = Modifier.padding(innerPadding)) }
+            2 -> { ButtonRow(modifier = Modifier.padding(innerPadding)) }
+            3 -> { CatScreen(modifier = Modifier.padding(innerPadding)) }
+            4 -> { DataLayerLayout() }
         }
     }
 }
+
 
 @Composable
 fun Greeting(

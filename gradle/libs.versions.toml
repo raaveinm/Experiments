@@ -10,17 +10,17 @@ espressoCore = "3.6.1"
 lifecycleRuntimeKtx = "2.8.7"
 activityCompose = "1.10.1"
 composeBom = "2025.04.00"
-lifecycleRuntimeKtxVersion = "2.7.0"
+lifecycleRuntimeKtxVersion = "2.8.7"
 loggingInterceptor = "4.11.0"
 material3 = "1.3.1"
 media3ExoplayerDash = "1.6.0"
 moshiKotlin = "1.15.0"
 retrofit = "2.9.0"
-coil = "2.5.0"
+coil = "2.6.0"
+fragment = "1.8.6"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
-androidx-lifecycle-runtime-ktx-v270 = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtxVersion" }
 androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycleRuntimeKtx" }
 coil-compose-v260 = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
 converter-moshi = { module = "com.squareup.retrofit2:converter-moshi", version.ref = "converterMoshi" }
@@ -45,7 +45,7 @@ media3-ui = { module = "androidx.media3:media3-ui", version.ref = "media3Exoplay
 moshi-kotlin = { module = "com.squareup.moshi:moshi-kotlin", version.ref = "moshiKotlin" }
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit" }
-coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
+androidx-fragment-ktx = { module = "androidx.fragment:fragment-ktx", version.ref = "fragment" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
