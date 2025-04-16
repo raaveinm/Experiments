@@ -32,6 +32,7 @@ import androidx.compose.material.icons.filled.Album
 import androidx.compose.material.icons.filled.Brush
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.DashboardCustomize
+import androidx.compose.material.icons.filled.DataArray
 import androidx.compose.material.icons.filled.DataSaverOff
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.MoreTime
@@ -68,6 +69,7 @@ import com.raaveinm.myapplication.service.Companion.ACTION_PAUSE
 import com.raaveinm.myapplication.service.Companion.ACTION_PLAY
 import com.raaveinm.myapplication.service.PlayerService
 import com.raaveinm.myapplication.ui.layout.CatScreen
+import com.raaveinm.myapplication.ui.layout.DBMain
 import com.raaveinm.myapplication.ui.layout.DataLayerLayout
 import com.raaveinm.myapplication.ui.layout.SharedPreferencesUI
 import com.raaveinm.myapplication.ui.layout.TimePickerScreen
@@ -90,6 +92,11 @@ class MainActivity : ComponentActivity() {
             }
             if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.MANAGE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
                 requestPermissionLauncher.launch(android.Manifest.permission.MANAGE_EXTERNAL_STORAGE)
+            }
+            if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_MEDIA_AUDIO) != PackageManager.PERMISSION_GRANTED){
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    requestPermissionLauncher.launch(android.Manifest.permission.READ_MEDIA_AUDIO)
+                }
             }
             MyApplicationTheme {
                 MainScreen()
@@ -119,7 +126,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun MainScreen() {
-    var localPressed by rememberSaveable { mutableIntStateOf(5) }
+    var localPressed by rememberSaveable { mutableIntStateOf(0) }
     var swapped by rememberSaveable { mutableStateOf(false) }
 
     Scaffold(
@@ -149,6 +156,14 @@ fun MainScreen() {
                             contentDescription = stringResource(R.string.Preferences)
                         )},
                         label = { Text(text = stringResource(R.string.Preferences)) }
+                    )
+                    NavigationBarItem(
+                        selected = localPressed == 6,
+                        onClick = { localPressed = 6 },
+                        icon = { Icon(
+                            (Icons.Filled.DataArray),
+                            contentDescription = stringResource(R.string.db)
+                        )}
                     )
                 } else {
                     NavigationBarItem(
@@ -200,6 +215,7 @@ fun MainScreen() {
             3 -> { CatScreen(modifier = Modifier.padding(innerPadding)) }
             4 -> { DataLayerLayout(modifier = Modifier.padding(innerPadding)) }
             5 -> { SharedPreferencesUI(modifier = Modifier.padding(innerPadding), context = LocalContext.current) }
+            6 -> { DBMain(modifier = Modifier.padding(innerPadding), applicationContext = LocalContext.current) }
         }
     }
 }

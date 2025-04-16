@@ -7,4 +7,5 @@
     <string name="datalayer">data</string>
     <string name="name">World</string>
     <string name="Preferences">preferences</string>
+    <string name="db">DB</string>
 </resources>

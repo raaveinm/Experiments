@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    id("com.google.devtools.ksp")
 }
 
 android {
@@ -78,4 +79,7 @@ dependencies {
     implementation(libs.androidx.room.rxjava3)
     implementation(libs.androidx.room.guava)
     implementation(libs.androidx.room.paging)
+    ksp(libs.androidx.room.compiler)
+
+    implementation(libs.androidx.navigation.compose)
 }
