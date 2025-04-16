@@ -68,4 +68,14 @@ dependencies {
     implementation(libs.moshi.kotlin)
     implementation(libs.coil.compose.v260)
     implementation(libs.logging.interceptor)
+
+    implementation(libs.androidx.datastore.preferences)
+    implementation(libs.androidx.datastore.preferences.rxjava3)
+
+    //room
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    implementation(libs.androidx.room.rxjava3)
+    implementation(libs.androidx.room.guava)
+    implementation(libs.androidx.room.paging)
 }

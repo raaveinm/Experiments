@@ -69,6 +69,7 @@ import com.raaveinm.myapplication.service.Companion.ACTION_PLAY
 import com.raaveinm.myapplication.service.PlayerService
 import com.raaveinm.myapplication.ui.layout.CatScreen
 import com.raaveinm.myapplication.ui.layout.DataLayerLayout
+import com.raaveinm.myapplication.ui.layout.SharedPreferencesUI
 import com.raaveinm.myapplication.ui.layout.TimePickerScreen
 import com.raaveinm.myapplication.ui.theme.MyApplicationTheme
 
@@ -76,6 +77,7 @@ class MainActivity : ComponentActivity() {
 
     val requestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()){}
 
+    @RequiresApi(Build.VERSION_CODES.R)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -116,10 +118,8 @@ class MainActivity : ComponentActivity() {
  */
 
 @Composable
-fun MainScreen(
-    modifier: Modifier = Modifier
-) {
-    var localPressed by rememberSaveable { mutableIntStateOf(0) }
+fun MainScreen() {
+    var localPressed by rememberSaveable { mutableIntStateOf(5) }
     var swapped by rememberSaveable { mutableStateOf(false) }
 
     Scaffold(
@@ -138,7 +138,17 @@ fun MainScreen(
                         icon = { Icon(
                             (Icons.Filled.DataSaverOff),
                             contentDescription = stringResource(R.string.datalayer)
-                        )}
+                        )},
+                        label = { Text(text = stringResource(R.string.datalayer)) }
+                    )
+                    NavigationBarItem(
+                        selected = localPressed == 5,
+                        onClick = { localPressed = 5 },
+                        icon = { Icon(
+                            (Icons.Filled.AccountCircle),
+                            contentDescription = stringResource(R.string.Preferences)
+                        )},
+                        label = { Text(text = stringResource(R.string.Preferences)) }
                     )
                 } else {
                     NavigationBarItem(
@@ -188,7 +198,8 @@ fun MainScreen(
             1 -> { TimePickerScreen(modifier = Modifier.padding(innerPadding)) }
             2 -> { ButtonRow(modifier = Modifier.padding(innerPadding)) }
             3 -> { CatScreen(modifier = Modifier.padding(innerPadding)) }
-            4 -> { DataLayerLayout() }
+            4 -> { DataLayerLayout(modifier = Modifier.padding(innerPadding)) }
+            5 -> { SharedPreferencesUI(modifier = Modifier.padding(innerPadding), context = LocalContext.current) }
         }
     }
 }
@@ -334,7 +345,7 @@ fun ButtonRow(
         Button(
             modifier = modifier
                 .padding(21.dp)
-                .shadow(7.dp, CircleShape, true,)
+                .shadow(7.dp, CircleShape, true)
                 .clip(CircleShape),
             onClick = {  }
         ) {

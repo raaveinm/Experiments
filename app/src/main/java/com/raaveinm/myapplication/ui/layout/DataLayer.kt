@@ -72,14 +72,9 @@ fun DataLayerLayout(
                 )
             }
             item {
-                ButtonRow(
-                    modifier = Modifier.fillMaxWidth(),
-                    fileName = fileName,
-                    fileContent = fileContent
-                )
+                ButtonRow(fileName = fileName, fileContent = fileContent)
             }
         }
-
     }
 }
 
@@ -160,7 +155,7 @@ fun ButtonRow(
             },
             dismissButton = { Button (onClick = { showAlertDialogue = false }) {Text ("No")} },
             icon = { Icon(Icons.Filled.WavingHand, contentDescription = null) },
-            title = { Text("alert") },
+            title = { Text("achtung") },
             text = { Text("are you sure you want to delete $fileName?") }
         )
     }
