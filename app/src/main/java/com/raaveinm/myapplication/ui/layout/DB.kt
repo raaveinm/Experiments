@@ -46,13 +46,6 @@ fun DBMain(
     var isLoading by remember { mutableStateOf(true) }
 
 
-    LaunchedEffect(key1 = Unit) {
-        isLoading = true
-        tracks = withContext(Dispatchers.IO) { db.trackDao().getAll() }
-        isLoading = false
-        Log.d("DBMain", "Tracks loaded: $tracks")
-    }
-
     LazyColumn {
         item {
             Row {
