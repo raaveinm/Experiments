@@ -215,7 +215,7 @@ fun MainScreen() {
             3 -> { CatScreen(modifier = Modifier.padding(innerPadding)) }
             4 -> { DataLayerLayout(modifier = Modifier.padding(innerPadding)) }
             5 -> { SharedPreferencesUI(modifier = Modifier.padding(innerPadding), context = LocalContext.current) }
-            6 -> { DBMain(modifier = Modifier.padding(innerPadding), applicationContext = LocalContext.current) }
+            6 -> { DBMain(modifier = Modifier.padding(innerPadding)) }
         }
     }
 }
