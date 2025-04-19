@@ -35,7 +35,9 @@ import androidx.compose.material.icons.filled.DashboardCustomize
 import androidx.compose.material.icons.filled.DataArray
 import androidx.compose.material.icons.filled.DataSaverOff
 import androidx.compose.material.icons.filled.Image
+import androidx.compose.material.icons.filled.Lan
 import androidx.compose.material.icons.filled.MoreTime
+import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.SwapVerticalCircle
@@ -68,11 +70,13 @@ import androidx.core.content.ContextCompat
 import com.raaveinm.myapplication.service.Companion.ACTION_PAUSE
 import com.raaveinm.myapplication.service.Companion.ACTION_PLAY
 import com.raaveinm.myapplication.service.PlayerService
+import com.raaveinm.myapplication.ui.layout.ButtonRow
 import com.raaveinm.myapplication.ui.layout.CatScreen
 import com.raaveinm.myapplication.ui.layout.DBMain
 import com.raaveinm.myapplication.ui.layout.DataLayerLayout
 import com.raaveinm.myapplication.ui.layout.SharedPreferencesUI
 import com.raaveinm.myapplication.ui.layout.TimePickerScreen
+import com.raaveinm.myapplication.ui.layout.WebViewScreenMain
 import com.raaveinm.myapplication.ui.theme.MyApplicationTheme
 
 class MainActivity : ComponentActivity() {
@@ -127,7 +131,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainScreen() {
     var localPressed by rememberSaveable { mutableIntStateOf(0) }
-    var swapped by rememberSaveable { mutableStateOf(false) }
+    var swapped by rememberSaveable { mutableIntStateOf(0) }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -135,12 +139,13 @@ fun MainScreen() {
             NavigationBar {
                 NavigationBarItem(
                     selected = false,
-                    onClick = { swapped = !swapped },
-                    icon = { Icon(Icons.Filled.SwapVerticalCircle, contentDescription = "swap") }
+                    onClick = { swapped = (swapped + 1) % 3 },
+                    icon = { Icon(Icons.Filled.SwapVerticalCircle, contentDescription = "swap")},
+                    label = { Text(text = "Swap") }
                 )
-                if (swapped) {
+                if (swapped == 0) {
                     NavigationBarItem(
-                        selected = localPressed ==4,
+                        selected = localPressed == 4,
                         onClick = { localPressed = 4 },
                         icon = { Icon(
                             (Icons.Filled.DataSaverOff),
@@ -165,7 +170,7 @@ fun MainScreen() {
                             contentDescription = stringResource(R.string.db)
                         )}
                     )
-                } else {
+                } else if (swapped == 1) {
                     NavigationBarItem(
                         selected = localPressed == 0,
                         onClick = { localPressed = 0 },
@@ -204,6 +209,25 @@ fun MainScreen() {
                         },
                         label = { Text(text = stringResource(R.string.cats)) }
                     )
+                } else if (swapped == 2) {
+                    NavigationBarItem(
+                        selected = localPressed == 7,
+                        onClick = { localPressed = 7 },
+                        icon = { Icon(
+                            (Icons.Filled.Lan),
+                            contentDescription = stringResource(R.string.WebView)
+                        )},
+                        label = { Text(text = stringResource(R.string.WebView)) }
+                    )
+                    NavigationBarItem(
+                        selected = localPressed == 8,
+                        onClick = { localPressed = 8 },
+                        icon = { Icon(
+                            (Icons.Filled.NotificationsActive),
+                            contentDescription = stringResource(R.string.Notifications)
+                        )},
+                        label = { Text(text = stringResource(R.string.Notifications)) }
+                    )
                 }
             }
         }
@@ -216,6 +240,9 @@ fun MainScreen() {
             4 -> { DataLayerLayout(modifier = Modifier.padding(innerPadding)) }
             5 -> { SharedPreferencesUI(modifier = Modifier.padding(innerPadding), context = LocalContext.current) }
             6 -> { DBMain(modifier = Modifier.padding(innerPadding)) }
+            7 -> { WebViewScreenMain(modifier = Modifier.padding(innerPadding)) }
+            8 -> {  }
+            else -> {  }
         }
     }
 }
@@ -326,66 +353,6 @@ fun Settings(
     }
 }
 
-@Composable
-fun ButtonRow(
-    modifier: Modifier = Modifier
-) {
-    var playPauseState by remember { mutableStateOf(false) }
-    val context = LocalContext.current
-
-    Row(
-        modifier = modifier,
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Button(
-            modifier = modifier
-                .padding(21.dp)
-                .shadow(
-                    7.dp, CircleShape, true,
-                    Color.Yellow, Color.Cyan
-                ),
-            //.border(3.dp,rainbowBackground(), CircleShape),
-            onClick = {
-                playPauseState = !playPauseState
-                context.playPause(playPauseState)
-
-            }
-        ) {
-            Image(
-                imageVector = if (!playPauseState)(Icons.Filled.Pause)else(Icons.Filled.PlayArrow),
-                contentDescription = "dd",
-                modifier = modifier.clip(CircleShape)
-            )
-        }
-        Button(
-            modifier = modifier
-                .padding(21.dp)
-                .shadow(7.dp, CircleShape, true)
-                .clip(CircleShape),
-            onClick = {  }
-        ) {
-            Image(
-                imageVector = Icons.Filled.Brush,
-                contentDescription = "dd",
-                modifier = modifier.clip(CircleShape)
-            )
-        }
-    }
-}
-
-fun Context.playPause(isPlaying: Boolean) {
-    val intent = Intent(this, PlayerService::class.java).apply {
-        action = if (isPlaying) ACTION_PAUSE else ACTION_PLAY
-    }
-    ContextCompat.startForegroundService(this, intent)
-}
-
-@Preview
-@Composable
-fun ButtonRowPreview() {
-    ButtonRow()
-}
 
 @Preview
 @Composable

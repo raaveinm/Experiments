@@ -8,4 +8,6 @@
     <string name="name">World</string>
     <string name="Preferences">preferences</string>
     <string name="db">DB</string>
+    <string name="WebView">WEB\n</string>
+    <string name="Notifications">NOTIFICATIONS</string>
 </resources>

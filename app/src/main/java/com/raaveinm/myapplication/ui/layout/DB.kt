@@ -1,5 +1,6 @@
 package com.raaveinm.myapplication.ui.layout
 
+import android.annotation.SuppressLint
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -72,10 +73,10 @@ fun DBMain(
         navController.navigateUp()
     }
 
-    val snackbarHostState = remember { SnackbarHostState() }
+    val snackBarHost = remember { SnackbarHostState() }
     Scaffold(
         modifier = modifier,
-        snackbarHost = { SnackbarHost(snackbarHostState) },
+        snackbarHost = { SnackbarHost(snackBarHost) },
         topBar = {
             TrackTopAppBar(
                 title = topAppBarTitle,
@@ -382,12 +383,13 @@ fun TrackListDetails(
                     Spacer(modifier = Modifier.width(40.dp))
                 }
             }
-            Divider(modifier = Modifier.padding(start = 16.dp, end = 16.dp))
+            HorizontalDivider(modifier = Modifier.padding(start = 16.dp, end = 16.dp))
         }
     }
 }
 
 
+@SuppressLint("DefaultLocale")
 fun formatDuration(millis: Long): String {
     val hours = TimeUnit.MILLISECONDS.toHours(millis)
     val minutes = TimeUnit.MILLISECONDS.toMinutes(millis) % 60
