@@ -3,7 +3,6 @@ package com.raaveinm.myapplication
 
 import android.Manifest.permission.READ_EXTERNAL_STORAGE
 import android.Manifest.permission.WRITE_EXTERNAL_STORAGE
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
@@ -13,12 +12,15 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -29,6 +31,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Album
+import androidx.compose.material.icons.filled.Animation
 import androidx.compose.material.icons.filled.Brush
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.DashboardCustomize
@@ -38,8 +41,6 @@ import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Lan
 import androidx.compose.material.icons.filled.MoreTime
 import androidx.compose.material.icons.filled.NotificationsActive
-import androidx.compose.material.icons.filled.Pause
-import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.SwapVerticalCircle
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
@@ -67,13 +68,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
-import com.raaveinm.myapplication.service.Companion.ACTION_PAUSE
-import com.raaveinm.myapplication.service.Companion.ACTION_PLAY
 import com.raaveinm.myapplication.service.PlayerService
 import com.raaveinm.myapplication.ui.layout.ButtonRow
 import com.raaveinm.myapplication.ui.layout.CatScreen
 import com.raaveinm.myapplication.ui.layout.DBMain
 import com.raaveinm.myapplication.ui.layout.DataLayerLayout
+import com.raaveinm.myapplication.ui.layout.FloatingBubblesScreen
+import com.raaveinm.myapplication.ui.layout.NotificationsMain
 import com.raaveinm.myapplication.ui.layout.SharedPreferencesUI
 import com.raaveinm.myapplication.ui.layout.TimePickerScreen
 import com.raaveinm.myapplication.ui.layout.WebViewScreenMain
@@ -88,16 +89,20 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            if (ContextCompat.checkSelfPermission(this, READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
+            if (ContextCompat.checkSelfPermission(this, READ_EXTERNAL_STORAGE) !=
+                PackageManager.PERMISSION_GRANTED){
                 requestPermissionLauncher.launch(READ_EXTERNAL_STORAGE)
             }
-            if (ContextCompat.checkSelfPermission(this, WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
+            if (ContextCompat.checkSelfPermission(this, WRITE_EXTERNAL_STORAGE) !=
+                PackageManager.PERMISSION_GRANTED){
                 requestPermissionLauncher.launch(WRITE_EXTERNAL_STORAGE)
             }
-            if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.MANAGE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
+            if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.MANAGE_EXTERNAL_STORAGE) !=
+                PackageManager.PERMISSION_GRANTED){
                 requestPermissionLauncher.launch(android.Manifest.permission.MANAGE_EXTERNAL_STORAGE)
             }
-            if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_MEDIA_AUDIO) != PackageManager.PERMISSION_GRANTED){
+            if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_MEDIA_AUDIO) !=
+                PackageManager.PERMISSION_GRANTED){
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                     requestPermissionLauncher.launch(android.Manifest.permission.READ_MEDIA_AUDIO)
                 }
@@ -132,102 +137,141 @@ class MainActivity : ComponentActivity() {
 fun MainScreen() {
     var localPressed by rememberSaveable { mutableIntStateOf(0) }
     var swapped by rememberSaveable { mutableIntStateOf(0) }
+    var scaffoldVisibility by rememberSaveable { mutableStateOf(true) }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         bottomBar = {
-            NavigationBar {
-                NavigationBarItem(
-                    selected = false,
-                    onClick = { swapped = (swapped + 1) % 3 },
-                    icon = { Icon(Icons.Filled.SwapVerticalCircle, contentDescription = "swap")},
-                    label = { Text(text = "Swap") }
-                )
-                if (swapped == 0) {
+            AnimatedVisibility(
+                visible = scaffoldVisibility,
+                enter = slideInVertically { it },
+                exit = slideOutVertically { it }
+            ) {
+                NavigationBar {
                     NavigationBarItem(
-                        selected = localPressed == 4,
-                        onClick = { localPressed = 4 },
-                        icon = { Icon(
-                            (Icons.Filled.DataSaverOff),
-                            contentDescription = stringResource(R.string.datalayer)
-                        )},
-                        label = { Text(text = stringResource(R.string.datalayer)) }
-                    )
-                    NavigationBarItem(
-                        selected = localPressed == 5,
-                        onClick = { localPressed = 5 },
-                        icon = { Icon(
-                            (Icons.Filled.AccountCircle),
-                            contentDescription = stringResource(R.string.Preferences)
-                        )},
-                        label = { Text(text = stringResource(R.string.Preferences)) }
-                    )
-                    NavigationBarItem(
-                        selected = localPressed == 6,
-                        onClick = { localPressed = 6 },
-                        icon = { Icon(
-                            (Icons.Filled.DataArray),
-                            contentDescription = stringResource(R.string.db)
-                        )}
-                    )
-                } else if (swapped == 1) {
-                    NavigationBarItem(
-                        selected = localPressed == 0,
-                        onClick = { localPressed = 0 },
-                        icon = { Icon(
-                            (Icons.Filled.AccountCircle),
-                            contentDescription = stringResource(R.string.home)
-                        )},
-                        label = { Text(text = stringResource(R.string.home)) }
-                    )
-                    NavigationBarItem(
-                        selected = localPressed == 2,
-                        onClick = { localPressed = 2 },
-                        icon = { Icon(
-                            (Icons.Filled.Album),
-                            contentDescription = stringResource(R.string.player)
-                        )},
-                        label = { Text(text = stringResource(R.string.player)) }
-                    )
-                    NavigationBarItem(
-                        selected = localPressed == 1,
-                        onClick = { localPressed = 1 },
-                        icon = { Icon(
-                            (Icons.Filled.Brush),
-                            contentDescription = stringResource(R.string.settings)
-                        )},
-                        label = { Text(text = stringResource(R.string.settings)) }
-                    )
-                    NavigationBarItem(
-                        selected = localPressed == 3,
-                        onClick = { localPressed = 3 },
+                        selected = false,
+                        onClick = { swapped = (swapped + 1) % 3 },
                         icon = {
                             Icon(
-                                (Icons.Filled.Image),
-                                contentDescription = stringResource(R.string.cats)
+                                Icons.Filled.SwapVerticalCircle,
+                                contentDescription = "swap"
                             )
                         },
-                        label = { Text(text = stringResource(R.string.cats)) }
+                        label = { Text(text = "Swap") }
                     )
-                } else if (swapped == 2) {
-                    NavigationBarItem(
-                        selected = localPressed == 7,
-                        onClick = { localPressed = 7 },
-                        icon = { Icon(
-                            (Icons.Filled.Lan),
-                            contentDescription = stringResource(R.string.WebView)
-                        )},
-                        label = { Text(text = stringResource(R.string.WebView)) }
-                    )
-                    NavigationBarItem(
-                        selected = localPressed == 8,
-                        onClick = { localPressed = 8 },
-                        icon = { Icon(
-                            (Icons.Filled.NotificationsActive),
-                            contentDescription = stringResource(R.string.Notifications)
-                        )},
-                        label = { Text(text = stringResource(R.string.Notifications)) }
-                    )
+                    if (swapped == 0) {
+                        NavigationBarItem(
+                            selected = localPressed == 4,
+                            onClick = { localPressed = 4 },
+                            icon = {
+                                Icon(
+                                    (Icons.Filled.DataSaverOff),
+                                    contentDescription = stringResource(R.string.datalayer)
+                                )
+                            },
+                            label = { Text(text = stringResource(R.string.datalayer)) }
+                        )
+                        NavigationBarItem(
+                            selected = localPressed == 5,
+                            onClick = { localPressed = 5 },
+                            icon = {
+                                Icon(
+                                    (Icons.Filled.AccountCircle),
+                                    contentDescription = stringResource(R.string.Preferences)
+                                )
+                            },
+                            label = { Text(text = stringResource(R.string.Preferences)) }
+                        )
+                        NavigationBarItem(
+                            selected = localPressed == 6,
+                            onClick = { localPressed = 6 },
+                            icon = {
+                                Icon(
+                                    (Icons.Filled.DataArray),
+                                    contentDescription = stringResource(R.string.db)
+                                )
+                            }
+                        )
+                    } else if (swapped == 1) {
+                        NavigationBarItem(
+                            selected = localPressed == 0,
+                            onClick = { localPressed = 0 },
+                            icon = {
+                                Icon(
+                                    (Icons.Filled.AccountCircle),
+                                    contentDescription = stringResource(R.string.home)
+                                )
+                            },
+                            label = { Text(text = stringResource(R.string.home)) }
+                        )
+                        NavigationBarItem(
+                            selected = localPressed == 2,
+                            onClick = { localPressed = 2 },
+                            icon = {
+                                Icon(
+                                    (Icons.Filled.Album),
+                                    contentDescription = stringResource(R.string.player)
+                                )
+                            },
+                            label = { Text(text = stringResource(R.string.player)) }
+                        )
+                        NavigationBarItem(
+                            selected = localPressed == 1,
+                            onClick = { localPressed = 1 },
+                            icon = {
+                                Icon(
+                                    (Icons.Filled.Brush),
+                                    contentDescription = stringResource(R.string.settings)
+                                )
+                            },
+                            label = { Text(text = stringResource(R.string.settings)) }
+                        )
+                        NavigationBarItem(
+                            selected = localPressed == 3,
+                            onClick = { localPressed = 3 },
+                            icon = {
+                                Icon(
+                                    (Icons.Filled.Image),
+                                    contentDescription = stringResource(R.string.cats)
+                                )
+                            },
+                            label = { Text(text = stringResource(R.string.cats)) }
+                        )
+                    } else if (swapped == 2) {
+                        NavigationBarItem(
+                            selected = localPressed == 7,
+                            onClick = { localPressed = 7 },
+                            icon = {
+                                Icon(
+                                    (Icons.Filled.Lan),
+                                    contentDescription = stringResource(R.string.WebView)
+                                )
+                            },
+                            label = { Text(text = stringResource(R.string.WebView)) }
+                        )
+                        NavigationBarItem(
+                            selected = localPressed == 8,
+                            onClick = { localPressed = 8 },
+                            icon = {
+                                Icon(
+                                    (Icons.Filled.NotificationsActive),
+                                    contentDescription = stringResource(R.string.Notifications)
+                                )
+                            },
+                            label = { Text(text = stringResource(R.string.Notifications)) }
+                        )
+                        NavigationBarItem(
+                            selected = localPressed == 9,
+                            onClick = { localPressed = 9 },
+                            icon = {
+                                Icon(
+                                    (Icons.Filled.Animation),
+                                    contentDescription = stringResource(R.string.Animations),
+                                )
+                            },
+                            label = { Text(text = stringResource(R.string.Animations)) }
+                        )
+                    }
                 }
             }
         }
@@ -241,7 +285,8 @@ fun MainScreen() {
             5 -> { SharedPreferencesUI(modifier = Modifier.padding(innerPadding), context = LocalContext.current) }
             6 -> { DBMain(modifier = Modifier.padding(innerPadding)) }
             7 -> { WebViewScreenMain(modifier = Modifier.padding(innerPadding)) }
-            8 -> {  }
+            8 -> { NotificationsMain(scaffoldModifier = Modifier.padding(innerPadding), context = LocalContext.current) }
+            9 -> { FloatingBubblesScreen(onClick = { scaffoldVisibility = !scaffoldVisibility }) }
             else -> {  }
         }
     }

@@ -10,4 +10,9 @@
     <string name="db">DB</string>
     <string name="WebView">WEB\n</string>
     <string name="Notifications">NOTIFICATIONS</string>
+    <string name="Animations">ANIM</string>
+    <string name="channel_one_name">Notification</string>
+    <string name="channel_one_description">notification1</string>
+    <string name="channel_two_description">this notification was scheduled</string>
+    <string name="channel_two_name">secondNotification</string>
 </resources>
